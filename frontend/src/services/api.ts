@@ -1,0 +1,81 @@
+// Typed API service - direct integration with tested backend
+import { SystemState, TickResponse, Driver, Rider, RideRequest } from '../types';
+
+const API_BASE = 'http://localhost:8000';
+
+// Driver Management (tested ✅)
+export const createDriver = async (x: number, y: number): Promise<Driver> => {
+  const response = await fetch(`${API_BASE}/drivers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ location: { x, y } })
+  });
+  if (!response.ok) throw new Error('Failed to create driver');
+  return response.json();
+};
+
+export const deleteDriver = async (driverId: string): Promise<{ message: string }> => {
+  const response = await fetch(`${API_BASE}/drivers/${driverId}`, {
+    method: 'DELETE'
+  });
+  if (!response.ok) throw new Error('Failed to delete driver');
+  return response.json();
+};
+
+// Rider Management (tested ✅)
+export const createRider = async (
+  pickupX: number, 
+  pickupY: number, 
+  dropoffX: number, 
+  dropoffY: number
+): Promise<Rider> => {
+  const response = await fetch(`${API_BASE}/riders`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      pickup_location: { x: pickupX, y: pickupY },
+      dropoff_location: { x: dropoffX, y: dropoffY }
+    })
+  });
+  if (!response.ok) throw new Error('Failed to create rider');
+  return response.json();
+};
+
+export const deleteRider = async (riderId: string): Promise<{ message: string }> => {
+  const response = await fetch(`${API_BASE}/riders/${riderId}`, {
+    method: 'DELETE'
+  });
+  if (!response.ok) throw new Error('Failed to delete rider');
+  return response.json();
+};
+
+export const getRiders = async (): Promise<{ riders: Rider[] }> => {
+  const response = await fetch(`${API_BASE}/riders`);
+  if (!response.ok) throw new Error('Failed to get riders');
+  return response.json();
+};
+
+// Ride Operations (tested ✅)
+export const requestRide = async (riderId: string): Promise<RideRequest> => {
+  const response = await fetch(`${API_BASE}/rides/request`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rider_id: riderId })
+  });
+  if (!response.ok) throw new Error('Failed to request ride');
+  return response.json();
+};
+
+// Simulation Control (tested ✅)
+export const advanceTick = async (): Promise<TickResponse> => {
+  const response = await fetch(`${API_BASE}/tick`, { method: 'POST' });
+  if (!response.ok) throw new Error('Failed to advance tick');
+  return response.json();
+};
+
+// System State (tested ✅)
+export const getSystemState = async (): Promise<SystemState> => {
+  const response = await fetch(`${API_BASE}/state`);
+  if (!response.ok) throw new Error('Failed to get system state');
+  return response.json();
+};

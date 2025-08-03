@@ -1,0 +1,42 @@
+# Exclude implementation and design documents
+Backend_Implementation_Plan.md
+Frontend_Implementation_Plan.md
+Technical_Design_Document.md
+Quick_Start_Guide.md
+Requirements Document.md
+SUBMISSION_GUIDE.md
+
+# Exclude PDF files
+*.pdf
+
+# Dependencies
+frontend/node_modules/
+backend/venv/
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE and system files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+frontend/build/
+frontend/dist/

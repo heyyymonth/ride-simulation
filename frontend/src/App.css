@@ -1,0 +1,149 @@
+/* Minimal styling - basic layout only, no fancy designs */
+.app {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.main-content {
+  display: flex;
+  gap: 20px;
+}
+
+/* Grid styling - simple and functional */
+.grid-container {
+  flex: 1;
+}
+
+.grid {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  border: 2px solid #333;
+  background: #f9f9f9;
+}
+
+.grid-cell {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #eee;
+}
+
+.entity {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  text-align: center;
+  line-height: 20px;
+  z-index: 10;
+}
+
+.driver.available { background: #90EE90; }
+.driver.on_trip { background: #FFB6C1; }
+.rider.pickup { background: #87CEEB; }
+.rider.dropoff { background: #DDA0DD; }
+
+.legend {
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.legend span {
+  display: block;
+  margin: 2px 0;
+}
+
+/* Sidebar styling */
+.sidebar {
+  width: 300px;
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+/* Controls styling */
+.controls {
+  margin-bottom: 20px;
+}
+
+.tick-button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.tick-button:hover {
+  background: #45a049;
+}
+
+.tick-display {
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+/* Form styling */
+.form-section {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+.form-section h4 {
+  margin-top: 0;
+}
+
+.form-section input {
+  width: 60px;
+  padding: 5px;
+  margin: 2px;
+  border: 1px solid #ccc;
+}
+
+.form-section button {
+  background: #008CBA;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-top: 5px;
+}
+
+.form-section button:hover {
+  background: #007B9A;
+}
+
+.location-inputs {
+  margin: 5px 0;
+}
+
+.location-inputs label {
+  display: inline-block;
+  width: 60px;
+  font-size: 12px;
+}
+
+/* Rider dropdown styling */
+.rider-dropdown {
+  width: 100%;
+  padding: 8px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.no-riders {
+  color: #666;
+  font-style: italic;
+  margin: 10px 0;
+  font-size: 12px;
+}
