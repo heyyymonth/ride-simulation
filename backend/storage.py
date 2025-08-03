@@ -59,6 +59,11 @@ class InMemoryStorage:
     def get_pending_requests(self) -> List[RideRequest]:
         return [r for r in self.ride_requests.values() if r.status == RideStatus.WAITING]
     
+    def get_driver_pending_rides(self, driver_id: str) -> List[RideRequest]:
+        """Get rides pending acceptance for a specific driver"""
+        return [r for r in self.ride_requests.values() 
+                if r.status == RideStatus.PENDING_ACCEPTANCE and r.offered_to_driver_id == driver_id]
+    
     # Simulation state
     def advance_tick(self) -> int:
         self.current_tick += 1

@@ -1,7 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 from enum import Enum
 import uuid
+from datetime import datetime, timedelta
 
 class DriverStatus(Enum):
     AVAILABLE = "available"
@@ -10,7 +11,8 @@ class DriverStatus(Enum):
 
 class RideStatus(Enum):
     WAITING = "waiting"
-    ASSIGNED = "assigned"
+    PENDING_ACCEPTANCE = "pending_acceptance"  # Offered to a driver, awaiting response
+    ASSIGNED = "assigned"  # Driver accepted, ride in progress
     REJECTED = "rejected"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -35,10 +37,31 @@ class Driver:
     status: DriverStatus = DriverStatus.AVAILABLE
     current_ride_id: Optional[str] = None
     completed_rides: int = 0  # Track fairness - number of completed rides
+    last_ride_end_time: Optional[datetime] = None  # For idle time calculation
+    recent_rides: List[datetime] = field(default_factory=list)  # Time-windowed ride history
+    
+    def get_idle_time_minutes(self) -> float:
+        """Calculate idle time since last ride ended (in minutes)"""
+        if self.last_ride_end_time is None:
+            # Never had a ride, use a large idle time
+            return 1000.0
+        return (datetime.now() - self.last_ride_end_time).total_seconds() / 60.0
+    
+    def get_recent_rides_count(self, window_hours: int = 1) -> int:
+        """Count rides in the last N hours"""
+        cutoff_time = datetime.now() - timedelta(hours=window_hours)
+        return sum(1 for ride_time in self.recent_rides if ride_time >= cutoff_time)
     
     @classmethod
     def create_new(cls, name: str, location: Location):
-        return cls(id=str(uuid.uuid4()), name=name, location=location, completed_rides=0)
+        return cls(
+            id=str(uuid.uuid4()), 
+            name=name, 
+            location=location, 
+            completed_rides=0,
+            last_ride_end_time=None,
+            recent_rides=[]
+        )
 
 @dataclass  
 class Rider:
@@ -59,6 +82,7 @@ class RideRequest:
     dropoff_location: Location
     status: RideStatus = RideStatus.WAITING
     assigned_driver_id: Optional[str] = None
+    offered_to_driver_id: Optional[str] = None  # Driver currently being offered the ride
     rejected_by: List[str] = None
     pickup_completed: bool = False
     

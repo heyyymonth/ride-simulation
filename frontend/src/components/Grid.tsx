@@ -41,7 +41,8 @@ const Grid: React.FC<GridProps> = ({ systemState }) => {
           left: `${(driver.location.x / 5) * 20}px`,
           top: `${(driver.location.y / 5) * 20}px`
         }}
-        title={`${driver.name} - ${driver.status} (${driver.completed_rides} rides)`}
+        title={`${driver.name} - ${driver.status}
+Total: ${driver.completed_rides} rides | Recent: ${driver.recent_rides_count}/hr | Idle: ${driver.idle_time_minutes.toFixed(1)}min`}
       >
         🚗
       </div>

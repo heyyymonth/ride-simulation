@@ -1,5 +1,6 @@
 from models import Driver, RideRequest, DriverStatus, RideStatus, Location
 from storage import storage
+from datetime import datetime, timedelta
 
 def advance_simulation_tick() -> dict:
     """
@@ -105,6 +106,15 @@ def handle_destination_reached(driver: Driver, request: RideRequest, is_pickup_p
         driver.status = DriverStatus.AVAILABLE
         driver.current_ride_id = None
         driver.completed_rides += 1  # Increment fairness counter
+        
+        # Update advanced driver metrics
+        now = datetime.now()
+        driver.last_ride_end_time = now
+        driver.recent_rides.append(now)
+        
+        # Keep only recent rides (last 24 hours to limit memory usage)
+        cutoff_time = now - timedelta(hours=24)
+        driver.recent_rides = [ride_time for ride_time in driver.recent_rides if ride_time >= cutoff_time]
 
 def get_simulation_state() -> dict:
     """Get current simulation state for frontend"""

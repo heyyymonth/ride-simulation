@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from models import Driver, Rider, RideRequest, Location, DriverStatus, RideStatus
 from storage import storage
-from dispatch import process_ride_request, handle_driver_rejection
+from dispatch import process_ride_request, handle_driver_rejection, accept_ride, reject_ride
 from simulation import advance_simulation_tick, get_simulation_state
 
 router = APIRouter()
@@ -70,7 +70,9 @@ async def list_drivers():
                 "location": {"x": d.location.x, "y": d.location.y},
                 "status": d.status.value,
                 "current_ride_id": d.current_ride_id,
-                "completed_rides": d.completed_rides
+                "completed_rides": d.completed_rides,
+                "idle_time_minutes": d.get_idle_time_minutes(),
+                "recent_rides_count": d.get_recent_rides_count()
             } for d in drivers
         ]
     }
@@ -135,41 +137,56 @@ async def request_ride(request: RideRequestModel):
         "rider_id": ride_request.rider_id,
         "status": ride_request.status.value,
         "assigned_driver_id": ride_request.assigned_driver_id,
+        "offered_to_driver_id": ride_request.offered_to_driver_id,
         "pickup_location": {"x": ride_request.pickup_location.x, "y": ride_request.pickup_location.y},
         "dropoff_location": {"x": ride_request.dropoff_location.x, "y": ride_request.dropoff_location.y},
         "message": "Ride request processed"
     }
 
 @router.post("/rides/{request_id}/accept")
-async def accept_ride(request_id: str, action: DriverActionRequest):
-    """Driver accepts a ride (for testing/simulation)"""
-    ride_request = storage.get_ride_request(request_id)
-    if not ride_request:
-        raise HTTPException(status_code=404, detail="Ride request not found")
+async def accept_ride_endpoint(request_id: str, action: DriverActionRequest):
+    """Driver accepts a ride offer"""
+    result = accept_ride(action.driver_id, request_id)
     
-    if ride_request.assigned_driver_id != action.driver_id:
-        raise HTTPException(status_code=400, detail="Driver not assigned to this ride")
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result["error"])
     
-    return {"message": "Ride accepted", "status": "in_progress"}
+    return {"message": result["message"], "status": "accepted"}
 
 @router.post("/rides/{request_id}/reject")
-async def reject_ride(request_id: str, action: DriverActionRequest):
-    """Driver rejects a ride (triggers fallback mechanism)"""
-    ride_request = storage.get_ride_request(request_id)
-    if not ride_request:
-        raise HTTPException(status_code=404, detail="Ride request not found")
+async def reject_ride_endpoint(request_id: str, action: DriverActionRequest):
+    """Driver rejects a ride offer (triggers fallback to next driver)"""
+    result = reject_ride(action.driver_id, request_id)
     
-    if ride_request.assigned_driver_id != action.driver_id:
-        raise HTTPException(status_code=400, detail="Driver not assigned to this ride")
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result["error"])
     
-    can_retry = handle_driver_rejection(ride_request, action.driver_id)
+    return {"message": result["message"], "status": "rejected"}
+
+@router.get("/drivers/{driver_id}/pending-rides")
+async def get_driver_pending_rides(driver_id: str):
+    """Get rides pending acceptance for a specific driver"""
+    driver = storage.get_driver(driver_id)
+    if not driver:
+        raise HTTPException(status_code=404, detail="Driver not found")
+    
+    pending_rides = storage.get_driver_pending_rides(driver_id)
     
     return {
-        "message": "Ride rejected",
-        "can_retry": can_retry,
-        "status": ride_request.status.value,
-        "new_driver_id": ride_request.assigned_driver_id
+        "driver_id": driver_id,
+        "driver_name": driver.name,
+        "pending_rides": [
+            {
+                "ride_id": ride.id,
+                "rider_id": ride.rider_id,
+                "pickup_location": {"x": ride.pickup_location.x, "y": ride.pickup_location.y},
+                "dropoff_location": {"x": ride.dropoff_location.x, "y": ride.dropoff_location.y},
+                "estimated_distance": driver.location.distance_to(ride.pickup_location)
+            } for ride in pending_rides
+        ]
     }
+
+# Ride management endpoints
 
 @router.get("/rides")
 async def list_rides():
@@ -182,6 +199,7 @@ async def list_rides():
                 "rider_id": r.rider_id,
                 "status": r.status.value,
                 "assigned_driver_id": r.assigned_driver_id,
+                "offered_to_driver_id": r.offered_to_driver_id,
                 "pickup_location": {"x": r.pickup_location.x, "y": r.pickup_location.y},
                 "dropoff_location": {"x": r.dropoff_location.x, "y": r.dropoff_location.y},
                 "rejected_by": r.rejected_by,
@@ -215,7 +233,9 @@ async def get_system_state():
                 "location": {"x": d.location.x, "y": d.location.y},
                 "status": d.status.value,
                 "current_ride_id": d.current_ride_id,
-                "completed_rides": d.completed_rides
+                "completed_rides": d.completed_rides,
+                "idle_time_minutes": d.get_idle_time_minutes(),
+                "recent_rides_count": d.get_recent_rides_count()
             } for d in state["drivers"]
         ],
         "riders": [
@@ -232,6 +252,7 @@ async def get_system_state():
                 "rider_id": req.rider_id,
                 "status": req.status.value,
                 "assigned_driver_id": req.assigned_driver_id,
+                "offered_to_driver_id": req.offered_to_driver_id,
                 "pickup_location": {"x": req.pickup_location.x, "y": req.pickup_location.y},
                 "dropoff_location": {"x": req.dropoff_location.x, "y": req.dropoff_location.y},
                 "rejected_by": req.rejected_by,
@@ -240,6 +261,41 @@ async def get_system_state():
         ],
         "current_tick": state["current_tick"]
     }
+
+@router.get("/active-rides")
+async def get_active_rides():
+    """Get currently active rides with detailed driver and rider information"""
+    state = get_simulation_state()
+    
+    active_rides = []
+    for request in state["ride_requests"]:
+        if request.status == RideStatus.ASSIGNED:
+            # Find the assigned driver and rider
+            driver = storage.get_driver(request.assigned_driver_id)
+            rider = storage.get_rider(request.rider_id)
+            
+            if driver and rider:
+                active_rides.append({
+                    "ride_id": request.id,
+                    "status": request.status.value,
+                    "pickup_completed": request.pickup_completed,
+                    "pickup_location": {"x": request.pickup_location.x, "y": request.pickup_location.y},
+                    "dropoff_location": {"x": request.dropoff_location.x, "y": request.dropoff_location.y},
+                    "driver": {
+                        "id": driver.id,
+                        "name": driver.name,
+                        "location": {"x": driver.location.x, "y": driver.location.y},
+                        "completed_rides": driver.completed_rides
+                    },
+                    "rider": {
+                        "id": rider.id,
+                        "name": rider.name,
+                        "pickup_location": {"x": rider.pickup_location.x, "y": rider.pickup_location.y},
+                        "dropoff_location": {"x": rider.dropoff_location.x, "y": rider.dropoff_location.y}
+                    }
+                })
+    
+    return {"active_rides": active_rides}
 
 @router.get("/grid")
 async def get_grid_data():

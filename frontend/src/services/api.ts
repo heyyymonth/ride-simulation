@@ -1,5 +1,5 @@
 // Typed API service - direct integration with tested backend
-import { SystemState, TickResponse, Driver, Rider, RideRequest } from '../types';
+import { SystemState, TickResponse, Driver, Rider, RideRequest, ActiveRide } from '../types';
 
 const API_BASE = 'http://localhost:8000';
 
@@ -79,5 +79,49 @@ export const advanceTick = async (): Promise<TickResponse> => {
 export const getSystemState = async (): Promise<SystemState> => {
   const response = await fetch(`${API_BASE}/state`);
   if (!response.ok) throw new Error('Failed to get system state');
+  return response.json();
+};
+
+// Active Rides Management
+export const getActiveRides = async (): Promise<{ active_rides: ActiveRide[] }> => {
+  const response = await fetch(`${API_BASE}/active-rides`);
+  if (!response.ok) throw new Error('Failed to get active rides');
+  return response.json();
+};
+
+// Driver Ride Management
+export const getDriverPendingRides = async (driverId: string): Promise<{
+  driver_id: string;
+  driver_name: string;
+  pending_rides: Array<{
+    ride_id: string;
+    rider_id: string;
+    pickup_location: { x: number; y: number };
+    dropoff_location: { x: number; y: number };
+    estimated_distance: number;
+  }>;
+}> => {
+  const response = await fetch(`${API_BASE}/drivers/${driverId}/pending-rides`);
+  if (!response.ok) throw new Error('Failed to get driver pending rides');
+  return response.json();
+};
+
+export const acceptRide = async (rideId: string, driverId: string): Promise<{ message: string; status: string }> => {
+  const response = await fetch(`${API_BASE}/rides/${rideId}/accept`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ driver_id: driverId })
+  });
+  if (!response.ok) throw new Error('Failed to accept ride');
+  return response.json();
+};
+
+export const rejectRide = async (rideId: string, driverId: string): Promise<{ message: string; status: string }> => {
+  const response = await fetch(`${API_BASE}/rides/${rideId}/reject`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ driver_id: driverId })
+  });
+  if (!response.ok) throw new Error('Failed to reject ride');
   return response.json();
 };

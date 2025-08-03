@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import Grid from './components/Grid';
 import Controls from './components/Controls';
 import EntityForm from './components/EntityForm';
+import ActiveRides from './components/ActiveRides';
+import DriverDashboard from './components/DriverDashboard';
 import { getSystemState } from './services/api';
 import { SystemState } from './types';
 import './App.css';
@@ -56,6 +58,11 @@ const App: React.FC = () => {
           />
         </div>
       </div>
+      <DriverDashboard 
+        drivers={systemState.drivers}
+        onRideAction={fetchSystemState}
+      />
+      <ActiveRides />
     </div>
   );
 };
