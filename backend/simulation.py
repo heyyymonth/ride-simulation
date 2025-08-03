@@ -104,6 +104,7 @@ def handle_destination_reached(driver: Driver, request: RideRequest, is_pickup_p
         request.status = RideStatus.COMPLETED
         driver.status = DriverStatus.AVAILABLE
         driver.current_ride_id = None
+        driver.completed_rides += 1  # Increment fairness counter
 
 def get_simulation_state() -> dict:
     """Get current simulation state for frontend"""

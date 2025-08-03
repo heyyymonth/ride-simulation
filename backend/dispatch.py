@@ -5,7 +5,8 @@ from storage import storage
 def find_best_driver(request: RideRequest) -> Optional[Driver]:
     """
     Find the best available driver for a ride request.
-    Algorithm: Closest driver by Manhattan distance (ETA optimization)
+    Algorithm: Balanced fairness - considers both distance and completed rides
+    Lower score = better choice (closer distance + fewer completed rides)
     """
     available_drivers = storage.get_available_drivers()
     
@@ -18,11 +19,22 @@ def find_best_driver(request: RideRequest) -> Optional[Driver]:
     if not eligible_drivers:
         return None
     
-    # Find closest driver by Manhattan distance (Low ETA goal)
-    best_driver = min(
-        eligible_drivers,
-        key=lambda d: d.location.distance_to(request.pickup_location)
-    )
+    # Fairness algorithm: Balance distance and ride count
+    def calculate_fairness_score(driver: Driver) -> float:
+        distance = driver.location.distance_to(request.pickup_location)
+        completed_rides = driver.completed_rides
+        
+        # Weighted scoring: 70% distance efficiency, 30% fairness
+        # Normalize distance (0-100 grid) and completed rides
+        distance_score = distance / 100.0  # Max possible distance ~140, normalize to 0-1.4
+        fairness_score = completed_rides / 10.0  # Every 10 rides = 1.0 score increase
+        
+        # Combined score: lower is better
+        total_score = (0.7 * distance_score) + (0.3 * fairness_score)
+        return total_score
+    
+    # Find driver with best combined score (lowest)
+    best_driver = min(eligible_drivers, key=calculate_fairness_score)
     
     return best_driver
 

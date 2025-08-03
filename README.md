@@ -69,8 +69,6 @@ npm start
 2. System finds all available drivers
 3. Calculates Manhattan distance (ETA) from each driver to pickup location
 4. Assigns closest driver (shortest ETA)
-5. If driver rejects, tries next-closest driver
-6. Maximum 3 rejection attempts before marking ride as "failed"
 ```
 
 ### Distance Calculation
@@ -87,7 +85,6 @@ def distance_to(self, other: Location) -> int:
 | **Low ETA** | Closest driver by Manhattan distance | Minimizes rider wait time |
 | **Fairness** | Available drivers rotated naturally | Prevents driver monopolization |
 | **Efficiency** | Immediate assignment when possible | Maximizes ride fulfillment |
-| **Fallbacks** | 3-attempt retry with next-best drivers | Handles rejections gracefully |
 
 ### Driver Movement System
 

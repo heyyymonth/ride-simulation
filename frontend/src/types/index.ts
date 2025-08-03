@@ -9,6 +9,7 @@ export interface Driver {
   location: Location;
   status: 'available' | 'on_trip' | 'offline';
   current_ride_id: string | null;
+  completed_rides: number;
 }
 
 export interface Rider {

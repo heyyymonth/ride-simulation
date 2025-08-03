@@ -44,6 +44,7 @@ async def create_driver(request: CreateDriverRequest):
         "id": driver.id,
         "location": {"x": driver.location.x, "y": driver.location.y},
         "status": driver.status.value,
+        "completed_rides": driver.completed_rides,
         "message": "Driver created successfully"
     }
 
@@ -65,7 +66,8 @@ async def list_drivers():
                 "id": d.id,
                 "location": {"x": d.location.x, "y": d.location.y},
                 "status": d.status.value,
-                "current_ride_id": d.current_ride_id
+                "current_ride_id": d.current_ride_id,
+                "completed_rides": d.completed_rides
             } for d in drivers
         ]
     }
@@ -208,7 +210,8 @@ async def get_system_state():
                 "id": d.id,
                 "location": {"x": d.location.x, "y": d.location.y},
                 "status": d.status.value,
-                "current_ride_id": d.current_ride_id
+                "current_ride_id": d.current_ride_id,
+                "completed_rides": d.completed_rides
             } for d in state["drivers"]
         ],
         "riders": [
