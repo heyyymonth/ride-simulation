@@ -167,6 +167,12 @@ frontend/src/
 - [x] **Comprehensive validation** - Input validation and error handling
 - [x] **Two-phase rider movement** - Realistic pickup and dropoff flow
 
+
+### 🚀 Advanced Features (Latest)
+- [x] **Multi-factor driver scoring** - α=0.6 distance + β=0.25 fairness + γ=0.15 idle time algorithm
+- [x] **Driver autonomy system** - Drivers can accept/reject rides with automatic fallback mechanism
+- [x] **Real-time driver dashboard** - Live pending rides management with accept/reject interface
+- [x] **Advanced driver metrics** - Idle time tracking, recent ride count, and performance analytics
 ### ✅ System States Tracked
 - **Drivers:** `available`, `on_trip`, `offline`
 - **Rides:** `waiting`, `assigned`, `rejected`, `completed`, `failed`
