@@ -6,6 +6,7 @@ export interface Location {
 
 export interface Driver {
   id: string;
+  name: string;
   location: Location;
   status: 'available' | 'on_trip' | 'offline';
   current_ride_id: string | null;

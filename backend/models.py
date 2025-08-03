@@ -30,14 +30,15 @@ class Location:
 @dataclass
 class Driver:
     id: str
+    name: str
     location: Location
     status: DriverStatus = DriverStatus.AVAILABLE
     current_ride_id: Optional[str] = None
     completed_rides: int = 0  # Track fairness - number of completed rides
     
     @classmethod
-    def create_new(cls, location: Location):
-        return cls(id=str(uuid.uuid4()), location=location, completed_rides=0)
+    def create_new(cls, name: str, location: Location):
+        return cls(id=str(uuid.uuid4()), name=name, location=location, completed_rides=0)
 
 @dataclass  
 class Rider:

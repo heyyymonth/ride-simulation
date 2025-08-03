@@ -52,6 +52,7 @@ const App: React.FC = () => {
           <EntityForm 
             onEntityCreated={fetchSystemState}
             riders={systemState.riders}
+            drivers={systemState.drivers}
           />
         </div>
       </div>

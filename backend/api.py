@@ -14,6 +14,7 @@ class LocationModel(BaseModel):
     y: int
 
 class CreateDriverRequest(BaseModel):
+    name: str
     location: LocationModel
 
 class CreateRiderRequest(BaseModel):
@@ -30,18 +31,19 @@ class DriverActionRequest(BaseModel):
 # Driver Management Endpoints
 @router.post("/drivers", response_model=dict)
 async def create_driver(request: CreateDriverRequest):
-    """Create a new driver at specified location"""
+    """Create a new driver with name and location"""
     location = Location(x=request.location.x, y=request.location.y)
     
     # Validate grid bounds (100x100)
     if not (0 <= location.x < 100 and 0 <= location.y < 100):
         raise HTTPException(status_code=400, detail="Location must be within 100x100 grid")
     
-    driver = Driver.create_new(location)
+    driver = Driver.create_new(request.name, location)
     storage.add_driver(driver)
     
     return {
         "id": driver.id,
+        "name": driver.name,
         "location": {"x": driver.location.x, "y": driver.location.y},
         "status": driver.status.value,
         "completed_rides": driver.completed_rides,
@@ -64,6 +66,7 @@ async def list_drivers():
         "drivers": [
             {
                 "id": d.id,
+                "name": d.name,
                 "location": {"x": d.location.x, "y": d.location.y},
                 "status": d.status.value,
                 "current_ride_id": d.current_ride_id,
@@ -208,6 +211,7 @@ async def get_system_state():
         "drivers": [
             {
                 "id": d.id,
+                "name": d.name,
                 "location": {"x": d.location.x, "y": d.location.y},
                 "status": d.status.value,
                 "current_ride_id": d.current_ride_id,

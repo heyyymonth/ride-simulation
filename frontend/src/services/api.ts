@@ -4,11 +4,11 @@ import { SystemState, TickResponse, Driver, Rider, RideRequest } from '../types'
 const API_BASE = 'http://localhost:8000';
 
 // Driver Management (tested ✅)
-export const createDriver = async (x: number, y: number): Promise<Driver> => {
+export const createDriver = async (name: string, x: number, y: number): Promise<Driver> => {
   const response = await fetch(`${API_BASE}/drivers`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ location: { x, y } })
+    body: JSON.stringify({ name: name, location: { x, y } })
   });
   if (!response.ok) throw new Error('Failed to create driver');
   return response.json();

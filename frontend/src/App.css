@@ -147,3 +147,43 @@
   margin: 10px 0;
   font-size: 12px;
 }
+
+/* Delete sections styling */
+.delete-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  margin: 5px 0;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.delete-item span {
+  flex: 1;
+  margin-right: 10px;
+  word-break: break-word;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.no-drivers {
+  color: #666;
+  font-style: italic;
+  margin: 10px 0;
+  font-size: 12px;
+}
