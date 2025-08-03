@@ -7,7 +7,7 @@ interface GridProps {
 }
 
 const Grid: React.FC<GridProps> = ({ systemState }) => {
-  const { drivers, riders } = systemState;
+  const { drivers, riders, ride_requests } = systemState;
   
   // Simple grid rendering - 20x20 visible (scaled from 100x100)
   const renderGrid = (): React.ReactElement[] => {
@@ -50,32 +50,40 @@ const Grid: React.FC<GridProps> = ({ systemState }) => {
 
   // Render riders on grid
   const renderRiders = (): React.ReactElement[] => {
-    return riders.map(rider => (
-      <div key={rider.id}>
-        {/* Pickup location */}
-        <div
-          className="entity rider pickup"
-          style={{
-            left: `${(rider.pickup_location.x / 5) * 20}px`,
-            top: `${(rider.pickup_location.y / 5) * 20}px`
-          }}
-          title={`${rider.name} - Pickup`}
-        >
-          🧍
+    return riders.map(rider => {
+      // Check if rider has a completed ride - if so, don't show destination pin
+      const riderRideRequest = ride_requests.find(req => req.rider_id === rider.id);
+      const shouldShowDestination = !riderRideRequest || riderRideRequest.status !== 'completed';
+
+      return (
+        <div key={rider.id}>
+          {/* Pickup location */}
+          <div
+            className="entity rider pickup"
+            style={{
+              left: `${(rider.pickup_location.x / 5) * 20}px`,
+              top: `${(rider.pickup_location.y / 5) * 20}px`
+            }}
+            title={`${rider.name} - Pickup`}
+          >
+            🧍
+          </div>
+          {/* Dropoff location - only show if ride hasn't completed */}
+          {shouldShowDestination && (
+            <div
+              className="entity rider dropoff"
+              style={{
+                left: `${(rider.dropoff_location.x / 5) * 20}px`,
+                top: `${(rider.dropoff_location.y / 5) * 20}px`
+              }}
+              title={`${rider.name} - Destination`}
+            >
+              📍
+            </div>
+          )}
         </div>
-        {/* Dropoff location */}
-        <div
-          className="entity rider dropoff"
-          style={{
-            left: `${(rider.dropoff_location.x / 5) * 20}px`,
-            top: `${(rider.dropoff_location.y / 5) * 20}px`
-          }}
-          title={`${rider.name} - Dropoff`}
-        >
-          📍
-        </div>
-      </div>
-    ));
+      );
+    });
   };
 
   return (

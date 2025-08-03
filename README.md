@@ -8,7 +8,6 @@ This system simulates a ride-hailing platform in a 100x100 city grid where:
 - **Riders** request rides from pickup to dropoff locations
 - **Drivers** are intelligently dispatched based on ETA optimization
 - **Simulation** advances manually through time ticks
-- **Fallback mechanisms** handle driver rejections
 - **Real-time visualization** shows all system activity
 
 ## 🚀 Quick Start
@@ -60,7 +59,6 @@ npm start
 3. **Add riders:** Use "Add Rider" form with pickup and dropoff locations
 4. **Request rides:** Select a rider from dropdown and click "Request Ride"
 5. **Advance simulation:** Click "Next Tick" to move drivers
-6. **Watch real-time:** System updates every 2 seconds automatically
 
 ## 🧠 How Dispatching Works
 
