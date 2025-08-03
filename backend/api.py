@@ -17,6 +17,7 @@ class CreateDriverRequest(BaseModel):
     location: LocationModel
 
 class CreateRiderRequest(BaseModel):
+    name: str
     pickup_location: LocationModel
     dropoff_location: LocationModel
 
@@ -72,7 +73,7 @@ async def list_drivers():
 # Rider Management Endpoints
 @router.post("/riders", response_model=dict)
 async def create_rider(request: CreateRiderRequest):
-    """Create a new rider with pickup and dropoff locations"""
+    """Create a new rider with name, pickup and dropoff locations"""
     pickup = Location(x=request.pickup_location.x, y=request.pickup_location.y)
     dropoff = Location(x=request.dropoff_location.x, y=request.dropoff_location.y)
     
@@ -82,11 +83,12 @@ async def create_rider(request: CreateRiderRequest):
     if not (0 <= dropoff.x < 100 and 0 <= dropoff.y < 100):
         raise HTTPException(status_code=400, detail="Dropoff location must be within 100x100 grid")
     
-    rider = Rider.create_new(pickup, dropoff)
+    rider = Rider.create_new(request.name, pickup, dropoff)
     storage.add_rider(rider)
     
     return {
         "id": rider.id,
+        "name": rider.name,
         "pickup_location": {"x": rider.pickup_location.x, "y": rider.pickup_location.y},
         "dropoff_location": {"x": rider.dropoff_location.x, "y": rider.dropoff_location.y},
         "message": "Rider created successfully"
@@ -212,6 +214,7 @@ async def get_system_state():
         "riders": [
             {
                 "id": r.id,
+                "name": r.name,
                 "pickup_location": {"x": r.pickup_location.x, "y": r.pickup_location.y},
                 "dropoff_location": {"x": r.dropoff_location.x, "y": r.dropoff_location.y}
             } for r in state["riders"]

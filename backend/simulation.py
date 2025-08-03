@@ -97,6 +97,9 @@ def handle_destination_reached(driver: Driver, request: RideRequest, is_pickup_p
             # Update rider's final location to dropoff
             rider.pickup_location = driver.location  # Rider's final location
             
+            # Remove rider from system - trip is complete
+            storage.remove_rider(request.rider_id)
+            
         # Complete the trip
         request.status = RideStatus.COMPLETED
         driver.status = DriverStatus.AVAILABLE

@@ -14,6 +14,7 @@ interface DriverForm {
 }
 
 interface RiderForm {
+  name: string;
   pickupX: string;
   pickupY: string;
   dropoffX: string;
@@ -23,7 +24,7 @@ interface RiderForm {
 const EntityForm: React.FC<EntityFormProps> = ({ onEntityCreated, riders }) => {
   const [driverForm, setDriverForm] = useState<DriverForm>({ x: '', y: '' });
   const [riderForm, setRiderForm] = useState<RiderForm>({ 
-    pickupX: '', pickupY: '', dropoffX: '', dropoffY: '' 
+    name: '', pickupX: '', pickupY: '', dropoffX: '', dropoffY: '' 
   });
   const [selectedRiderId, setSelectedRiderId] = useState<string>('');
 
@@ -44,10 +45,11 @@ const EntityForm: React.FC<EntityFormProps> = ({ onEntityCreated, riders }) => {
     e.preventDefault();
     try {
       await createRider(
+        riderForm.name,
         Number(riderForm.pickupX), Number(riderForm.pickupY),
         Number(riderForm.dropoffX), Number(riderForm.dropoffY)
       );
-      setRiderForm({ pickupX: '', pickupY: '', dropoffX: '', dropoffY: '' });
+      setRiderForm({ name: '', pickupX: '', pickupY: '', dropoffX: '', dropoffY: '' });
       onEntityCreated();
     } catch (error: any) {
       alert('Failed to create rider: ' + error.message);
@@ -101,6 +103,15 @@ const EntityForm: React.FC<EntityFormProps> = ({ onEntityCreated, riders }) => {
       {/* Add Rider Form */}
       <form onSubmit={handleCreateRider} className="form-section">
         <h4>Add Rider</h4>
+        <input
+          type="text"
+          placeholder="Rider Name"
+          value={riderForm.name}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+            setRiderForm({...riderForm, name: e.target.value})}
+          required
+          style={{width: '100%', marginBottom: '10px'}}
+        />
         <div className="location-inputs">
           <label>Pickup:</label>
           <input
@@ -158,7 +169,7 @@ const EntityForm: React.FC<EntityFormProps> = ({ onEntityCreated, riders }) => {
             <option value="">Select a rider...</option>
             {riders.map(rider => (
               <option key={rider.id} value={rider.id}>
-                Rider {rider.id.slice(0, 8)} - From ({rider.pickup_location.x},{rider.pickup_location.y}) to ({rider.dropoff_location.x},{rider.dropoff_location.y})
+                {rider.name} - From ({rider.pickup_location.x},{rider.pickup_location.y}) to ({rider.dropoff_location.x},{rider.dropoff_location.y})
               </option>
             ))}
           </select>

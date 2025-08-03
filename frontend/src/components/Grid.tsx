@@ -59,7 +59,7 @@ const Grid: React.FC<GridProps> = ({ systemState }) => {
             left: `${(rider.pickup_location.x / 5) * 20}px`,
             top: `${(rider.pickup_location.y / 5) * 20}px`
           }}
-          title={`Rider ${rider.id.slice(0, 8)} - Pickup`}
+          title={`${rider.name} - Pickup`}
         >
           🧍
         </div>
@@ -70,7 +70,7 @@ const Grid: React.FC<GridProps> = ({ systemState }) => {
             left: `${(rider.dropoff_location.x / 5) * 20}px`,
             top: `${(rider.dropoff_location.y / 5) * 20}px`
           }}
-          title={`Rider ${rider.id.slice(0, 8)} - Dropoff`}
+          title={`${rider.name} - Dropoff`}
         >
           📍
         </div>

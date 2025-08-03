@@ -41,12 +41,13 @@ class Driver:
 @dataclass  
 class Rider:
     id: str
+    name: str
     pickup_location: Location
     dropoff_location: Location
     
     @classmethod
-    def create_new(cls, pickup: Location, dropoff: Location):
-        return cls(id=str(uuid.uuid4()), pickup_location=pickup, dropoff_location=dropoff)
+    def create_new(cls, name: str, pickup: Location, dropoff: Location):
+        return cls(id=str(uuid.uuid4()), name=name, pickup_location=pickup, dropoff_location=dropoff)
 
 @dataclass
 class RideRequest:

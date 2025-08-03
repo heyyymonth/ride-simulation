@@ -24,6 +24,7 @@ export const deleteDriver = async (driverId: string): Promise<{ message: string 
 
 // Rider Management (tested ✅)
 export const createRider = async (
+  name: string,
   pickupX: number, 
   pickupY: number, 
   dropoffX: number, 
@@ -33,6 +34,7 @@ export const createRider = async (
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      name: name,
       pickup_location: { x: pickupX, y: pickupY },
       dropoff_location: { x: dropoffX, y: dropoffY }
     })

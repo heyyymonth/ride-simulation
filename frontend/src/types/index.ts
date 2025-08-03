@@ -13,6 +13,7 @@ export interface Driver {
 
 export interface Rider {
   id: string;
+  name: string;
   pickup_location: Location;
   dropoff_location: Location;
 }
