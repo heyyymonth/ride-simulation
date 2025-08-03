@@ -31,7 +31,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # Start FastAPI server
-python main.py
+python3 main.py
 ```
 
 **Backend will run on:** `http://localhost:8000`
